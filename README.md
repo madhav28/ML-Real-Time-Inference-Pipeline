@@ -22,3 +22,26 @@ real-time-pipeline/
 ├── docker-compose.yml
 └── requirements.txt
 ```
+
+## Spin everything up:
+```bash
+docker compose up --build      # API at http://localhost:8000
+```
+
+## Endpoints
+| Method | Route                | Purpose                       |
+|--------|----------------------|-------------------------------|
+| POST   | `/predict`           | Queue a prediction job        |
+| GET    | `/result/<job_id>`   | Poll until scores are ready   |
+
+## Example
+```bash
+# Submit job
+JOB=$(curl -s -X POST http://localhost:8000/predict \
+        -H "Content-Type: application/json" \
+        -d '{"user_id": 42, "item_ids": [4,7,19]}' | jq -r .job_id)
+
+# Poll for result
+curl http://localhost:8000/result/$JOB
+# → {"scores":[0.83,0.41,0.57]}
+```
